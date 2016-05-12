@@ -77,5 +77,23 @@ class Api extends REST_Controller{
   }
 
 
+  public function parse_file_get(){
+    $this->load->helper('download');
+    $name = $this->get('filename');
+
+    $json_string = site_url('uploads/data/' . $name . ".txt");
+    $jsondata = file_get_contents($json_string);
+    $obj = json_decode($jsondata);
+
+
+    if($obj){
+      $this->response($obj, 200);
+    }else{
+      $this->response($json_string, 404);
+    }
+  }
+
+
+
 
 }
