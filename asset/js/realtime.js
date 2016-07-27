@@ -1,3 +1,6 @@
+var apiRoot = 'index.php/api/';
+
+
 var app=angular.module('memsnanoApp',['ngMaterial', 'highcharts-ng']);
 
 app.controller('RealtimeCtrl',function($scope,$http,$interval){
@@ -8,7 +11,7 @@ app.controller('RealtimeCtrl',function($scope,$http,$interval){
   },10000);
 
   function load_data(){
-    $http.get('api/parse_realtime_file/').success(function(data){
+    $http.get(apiRoot + 'parse_realtime_file/').success(function(data){
       $scope.parse=data;
     });
   };
@@ -26,7 +29,7 @@ app.controller('DashboardCtrl', function ($scope, $http) {
   load_records();
 
   function load_records(){
-    $http.get('api/records/?date='
+    $http.get(apiRoot + 'records/?date='
         + formatDate($scope.myDate))
         .success(function(data){
       $scope.records = data;
@@ -36,7 +39,7 @@ app.controller('DashboardCtrl', function ($scope, $http) {
   }
 
   $scope.deleteRecord = function(record){
-    $url = 'api/records/' + record.recording_id;
+    $url = apiRoot + 'records/' + record.recording_id;
     console.log('Delete ' + $url);
     $http.delete($url);
     $scope.records.splice($scope.records.indexOf(record), 1);
@@ -46,7 +49,7 @@ app.controller('DashboardCtrl', function ($scope, $http) {
     $scope.selectedIndex = record;
 
 
-    $http.get('api/parse_file/?filename=' + $scope.records[record].file_name).success(function(fdata){
+    $http.get(apiRoot + 'parse_file/?filename=' + $scope.records[record].file_name).success(function(fdata){
       var chartData = [];
       // $scope.ecg = fdata;
       console.log('display chart ' + $scope.records[record].file_name + ': ' + fdata.length);

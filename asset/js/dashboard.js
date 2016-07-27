@@ -1,17 +1,20 @@
+var apiRoot = 'index.php/api/';
+
+
 var dashboardApp = angular.module('dashboardApp', ['highcharts-ng']);
 
 dashboardApp.controller('DashboardCtrl', function ($scope, $http) {
   $scope.selectedRecordIndex = 0;
 
 
-  $http.get('api/records').success(function(data){
+  $http.get(apiRoot + 'records').success(function(data){
     $scope.records = data;
   }).error(function(data){
     $scope.records = data;
   });
 
   $scope.refresh = function(){
-    $http.get('api/records').success(function(data){
+    $http.get(apiRoot + 'records').success(function(data){
       $scope.records = data;
     }).error(function(data){
       $scope.records = data;
@@ -19,7 +22,7 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $http) {
   }
 
   $scope.deleteRecord = function(record){
-    $url = 'api/records/' + record.recording_id;
+    $url = apiRoot + 'records/' + record.recording_id;
     console.log('Delete ' + $url);
     $http.delete($url);
     $scope.records.splice($scope.records.indexOf(record), 1);
@@ -29,7 +32,7 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $http) {
     $scope.selectedIndex = record;
 
 
-    $http.get('api/parse_file/?filename=' + $scope.records[record].file_name).success(function(fdata){
+    $http.get(apiRoot + 'parse_file/?filename=' + $scope.records[record].file_name).success(function(fdata){
       var chartData = [];
       // $scope.ecg = fdata;
       console.log('display chart ' + $scope.records[record].file_name + ': ' + fdata.length);
