@@ -13,9 +13,53 @@ class Api extends REST_Controller{
   }
 
 
-  public function records_get(){
+  /** 
+   * =================================================================================
+   * Realtime API
+   * =================================================================================
+   */
+
+  public function realtime_get(){
     if(! $this->get('id')) {
+      $this->response(array('error' => 'Missing post data: id'), 400);
+    }else{
+      $records = $this->Realtime_model->get_record($this->get('id'));
+    }
+
+    if($records){
+      $this->response($records, 200);
+    }else{
+      $this->response([], 404);
+    }
+  }
+
+  public function realtime_put(){
+    if(! $this->put('id')){
+      $this->response(array('error' => 'Task id is required'), 400);
+    }
+
+    $data = array(
+      'id'     => $this->put('id'),
+      'recording_time'    => $this->put('recording_time')
+    );
+
+    $this->task_model->update_task($this->put('id'), $data);
+    $message = array('success' => $this->put('recording_time').' Updated!');
+    $this->response($message, 200);
+  }
+
+
+  /** 
+   * =================================================================================
+   * Records API
+   * =================================================================================
+   */
+
+  public function records_get(){
+    if((! $this->get('id')) AND (! $this->get('date'))) {
       $records = $this->Records_model->get_all();
+    }else if ($this->get('date')){
+      $records = $this->Records_model->get_records_date($this->get('date'));
     }else{
       $records = $this->Records_model->get_record($this->get('id'));
     }
@@ -57,7 +101,11 @@ class Api extends REST_Controller{
   }
 
 
-
+  /** 
+   * =================================================================================
+   * Data file API
+   * =================================================================================
+   */
 
   public function upload_post(){
     $config['upload_path'] = './uploads/data/';
@@ -82,6 +130,47 @@ class Api extends REST_Controller{
     $name = $this->get('filename');
 
     $json_string = site_url('uploads/data/' . $name . ".txt");
+    $jsondata = file_get_contents($json_string);
+    $obj = json_decode($jsondata);
+
+
+    if($obj){
+      $this->response($obj, 200);
+    }else{
+      $this->response($json_string, 404);
+    }
+  }
+
+
+  /** 
+   * =================================================================================
+   * Realtime Data file API
+   * =================================================================================
+   */
+
+  public function upload_realtime_post(){
+    $config['upload_path'] = './uploads/data/realtime';
+    $config['allowed_types'] = '*';
+    $config['overwrite'] = TRUE;
+    $this->load->library('upload', $config);
+
+
+    if(! $this->upload->do_upload('file')){
+      $this->response(array('error' => 'Error: uploading file' . $this->upload->display_errors()), 400);
+    }else{
+      $this->response(array(
+        'error' => false,
+        'message' => 'Success'
+      ), 200);
+    }
+
+  }
+
+
+  public function parse_realtime_file_get(){
+    $this->load->helper('download');
+
+    $json_string = site_url('uploads/data/realtime/realtime.txt');
     $jsondata = file_get_contents($json_string);
     $obj = json_decode($jsondata);
 
